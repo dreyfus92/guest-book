@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
@@ -17,16 +18,36 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <h1>Guestbook</h1>
+        <h1 className="text-3xl">Guestbook</h1>
+        <p className="mt-2 mb-6">
+          Tutorial for <code>create-t3-app</code>
+        </p>
         {session ? (
           <div>
-            <p>hi {session.user?.name}</p>
-            <button onClick={() => signOut()}>Logout</button>
+            <p> Hi {session.user?.name}</p>
+            <button
+              className="group relative inline-block text-sm font-medium text-white focus:outline-none focus:ring"
+              onClick={() => signOut()}
+            >
+              <span className="absolute inset-0 border border-red-600 group-active:border-red-500"></span>
+              <span className="block border border-red-600 bg-red-600 px-12 py-3 transition-transform active:border-red-500 active:bg-red-500 group-hover:-translate-x-1 group-hover:-translate-y-1">
+                Logout
+              </span>
+            </button>
+            <div className="pt-10">
+              <Messages />
+            </div>
           </div>
         ) : (
           <div>
-            <button onClick={() => signIn("discord")}>
-              Login with Discord
+            <button
+              className="group relative inline-block text-sm font-medium text-white focus:outline-none focus:ring"
+              onClick={() => signIn("discord")}
+            >
+              <span className="absolute inset-0 border border-red-600 group-active:border-red-500"></span>
+              <span className="block border border-red-600 bg-red-600 px-12 py-3 transition-transform active:border-red-500 active:bg-red-500 group-hover:-translate-x-1 group-hover:-translate-y-1">
+                Login
+              </span>
             </button>
           </div>
         )}
@@ -37,29 +58,21 @@ const Home: NextPage = () => {
 
 export default Home;
 
-type TechnologyCardProps = {
-  name: string;
-  description: string;
-  documentation: string;
-};
+const Messages = () => {
+  const { data: messages, isLoading } = trpc.useQuery(["guestbook.getAll"]);
 
-const TechnologyCard = ({
-  name,
-  description,
-  documentation,
-}: TechnologyCardProps) => {
+  if (isLoading) return <div>Fetching messages...</div>;
+
   return (
-    <section className="flex flex-col justify-center rounded border-2 border-gray-500 p-6 shadow-xl duration-500 motion-safe:hover:scale-105">
-      <h2 className="text-lg text-gray-700">{name}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
-      <a
-        className="m-auto mt-3 w-fit text-sm text-violet-500 underline decoration-dotted underline-offset-2"
-        href={documentation}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Documentation
-      </a>
-    </section>
+    <div className="flex flex-col gap-4">
+      {messages?.map((msg, index) => {
+        return (
+          <div key={index}>
+            <p>{msg.message}</p>
+            <span>- {msg.name}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 };
