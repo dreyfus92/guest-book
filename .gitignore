@@ -22,7 +22,7 @@
 # misc
 .DS_Store
 *.pem
-.idea
+
 
 # debug
 npm-debug.log*
@@ -39,3 +39,4 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+.idea
