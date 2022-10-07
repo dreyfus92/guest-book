@@ -62,3 +62,12 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+// prisma/schema.prisma
+
+model Guestbook {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    name      String
+    message   String   @db.VarChar(100)
+}
