@@ -1,7 +1,7 @@
 # Guestbook
 This is an small project based on [nexxel's tutorial](https://dev.to/nexxeln/build-a-full-stack-app-with-create-t3-app-5e1e). 
 
-![play]()
+![play](https://github.com/dreyfus92/guest-book/blob/main/public/guestbook.gif)
 
 This is an app bootstrapped according to the [init.tips](https://init.tips) stack, also known as the T3-Stack.
 
