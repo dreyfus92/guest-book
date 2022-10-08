@@ -3,6 +3,7 @@ import { useState } from "react";
 import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
+import { Messages } from "../components/Messages";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
@@ -11,7 +12,7 @@ const Home: NextPage = () => {
   const postMessage = trpc.useMutation("guestbook.postMessage", {
     onMutate: () => {
       ctx.cancelQuery(["guestbook.getAll"]);
-      let optimisticUpdate = ctx.getQueryData(["guestbook.getAll"]);
+      const optimisticUpdate = ctx.getQueryData(["guestbook.getAll"]);
       if (optimisticUpdate) {
         ctx.setQueryData(["guestbook.getAll"], optimisticUpdate);
       }
@@ -37,11 +38,13 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <h1 className="text-3xl mb-4">Guestbook</h1>
+        <h1 className="text-3xl mb-4 underline underline-offset-4 mb-10">
+          Guestbook
+        </h1>
         {session ? (
           <div>
-            <div>
-              <p> Hi {session.user?.name}</p>
+            <div className="flex items-center justify-around">
+              <p> Hello {session.user?.name}</p>
               <button
                 className="group relative inline-block text-sm font-medium text-white focus:outline-none focus:ring"
                 onClick={() => signOut()}
@@ -110,22 +113,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-const Messages = () => {
-  const { data: messages, isLoading } = trpc.useQuery(["guestbook.getAll"]);
-
-  if (isLoading) return <div>Fetching messages...</div>;
-
-  return (
-    <div className="flex flex-col gap-4">
-      {messages?.map((msg, index) => {
-        return (
-          <div key={index}>
-            <p>{msg.message}</p>
-            <span>- {msg.name}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
