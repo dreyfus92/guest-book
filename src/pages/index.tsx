@@ -7,7 +7,19 @@ import { trpc } from "../utils/trpc";
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
   const [message, setMessage] = useState("");
-  const postMessage = trpc.useMutation("guestbook.postMessage");
+  const ctx = trpc.useContext();
+  const postMessage = trpc.useMutation("guestbook.postMessage", {
+    onMutate: () => {
+      ctx.cancelQuery(["guestbook.getAll"]);
+      let optimisticUpdate = ctx.getQueryData(["guestbook.getAll"]);
+      if (optimisticUpdate) {
+        ctx.setQueryData(["guestbook.getAll"], optimisticUpdate);
+      }
+    },
+    onSettled: () => {
+      ctx.invalidateQueries(["guestbook.getAll"]);
+    },
+  });
 
   if (status === "loading") {
     return (
